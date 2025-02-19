@@ -37,19 +37,7 @@
             margin-bottom: 30px;
         }
 
-        /* Section Styles */
-        .section {
-            margin-bottom: 30px;
-        }
-
-        .section h2 {
-            color: #E94E77;
-            border-bottom: 2px solid #E94E77;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        /* Input Search Box */
+        /* Search Box */
         input[type="text"] {
             width: 100%;
             padding: 12px;
@@ -71,12 +59,7 @@
             margin: 10px 0;
             padding: 12px;
             border-radius: 5px;
-            transition: background-color 0.3s;
             font-size: 18px;
-        }
-
-        li:hover {
-            background-color: #f1f1f1;
         }
 
         /* Footer Styles */
@@ -134,56 +117,52 @@
     <div class="container">
         <h1>Movie & Series List</h1>
 
-        <div class="section">
-            <h2>Search Series</h2>
-            <input type="text" id="searchSeries" placeholder="Search for a series..." oninput="filterList('series')">
-            <ul id="seriesList"></ul>
-        </div>
+        <!-- Single Search Box -->
+        <input type="text" id="searchInput" placeholder="Search for a movie or series..." oninput="filterList()">
 
-        <div class="section">
-            <h2>Search Movies</h2>
-            <input type="text" id="searchMovies" placeholder="Search for a movie..." oninput="filterList('movies')">
-            <ul id="moviesList"></ul>
-        </div>
+        <!-- Combined List for Movies and Series -->
+        <ul id="combinedList"></ul>
         
         <footer>Created with ❤️ using GitHub Pages</footer>
     </div>
 
     <script>
-        async function loadFile(fileName, listId) {
+        async function loadFile(fileName) {
             try {
                 const response = await fetch(fileName);
                 const text = await response.text();
-                const items = text.split('\n').filter(line => line.trim() !== '');
-
-                // Create list items
-                const listElement = document.getElementById(listId);
-                listElement.innerHTML = '';
-                items.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    listElement.appendChild(li);
-                });
+                return text.split('\n').filter(line => line.trim() !== '');
             } catch (error) {
                 console.error("Error loading file:", error);
             }
         }
 
-        function filterList(listType) {
-            const searchInput = document.getElementById(listType === 'series' ? 'searchSeries' : 'searchMovies');
-            const query = searchInput.value.toLowerCase();
-            const listId = listType === 'series' ? 'seriesList' : 'moviesList';
-            const listItems = document.querySelectorAll(`#${listId} li`);
+        async function loadLists() {
+            const series = await loadFile('series.txt');
+            const movies = await loadFile('movies_sorted.txt');
             
-            listItems.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(query) ? 'block' : 'none';
+            const combinedList = [...series, ...movies]; // Merge series and movies into one list
+            const listElement = document.getElementById('combinedList');
+            listElement.innerHTML = '';
+            
+            combinedList.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                listElement.appendChild(li);
             });
         }
 
-        // Load the content of both files
-        loadFile('series.txt', 'seriesList');
-        loadFile('movies_sorted.txt', 'moviesList');
+        function filterList() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const listItems = document.querySelectorAll('#combinedList li');
+            
+            listItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchInput) ? 'block' : 'none';
+            });
+        }
+
+        loadLists(); // Load the lists when the page loads
     </script>
 
 </body>
