@@ -3,57 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Movie & Series List</title>
+    <title>Movie & Series List</title>
     <style>
+        /* General Body Styles */
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-            background-color: #f4f4f4;
-        }
-        h1 {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
             color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
         }
+
+        /* Container Styles */
         .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
+            background: #fff;
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
         }
-        pre {
-            text-align: left;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background: #eee;
-            padding: 10px;
+
+        /* Title */
+        h1 {
+            color: #4A90E2;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #E94E77;
+            border-bottom: 2px solid #E94E77;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Input Search Box */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        /* List Styles */
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            background-color: #fafafa;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-size: 18px;
+        }
+
+        li:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Footer Styles */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            input[type="text"] {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            li {
+                font-size: 16px;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            input[type="text"] {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            li {
+                font-size: 14px;
+                padding: 8px;
+            }
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>My Movie & Series List</h1>
-        <h2>Series</h2>
-        <pre id="series"></pre>
-        <h2>Movies</h2>
-        <pre id="movies"></pre>
+        <h1>Movie & Series List</h1>
+
+        <div class="section">
+            <h2>Search Series</h2>
+            <input type="text" id="searchSeries" placeholder="Search for a series..." oninput="filterList('series')">
+            <ul id="seriesList"></ul>
+        </div>
+
+        <div class="section">
+            <h2>Search Movies</h2>
+            <input type="text" id="searchMovies" placeholder="Search for a movie..." oninput="filterList('movies')">
+            <ul id="moviesList"></ul>
+        </div>
+        
+        <footer>Created with ❤️ using GitHub Pages</footer>
     </div>
 
     <script>
-        async function loadFile(fileName, elementId) {
+        async function loadFile(fileName, listId) {
             try {
                 const response = await fetch(fileName);
                 const text = await response.text();
-                document.getElementById(elementId).textContent = text;
+                const items = text.split('\n').filter(line => line.trim() !== '');
+
+                // Create list items
+                const listElement = document.getElementById(listId);
+                listElement.innerHTML = '';
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    listElement.appendChild(li);
+                });
             } catch (error) {
-                document.getElementById(elementId).textContent = "Error loading file.";
+                console.error("Error loading file:", error);
             }
         }
 
-        loadFile('series.txt', 'series');
-        loadFile('movies_sorted.txt', 'movies');
+        function filterList(listType) {
+            const searchInput = document.getElementById(listType === 'series' ? 'searchSeries' : 'searchMovies');
+            const query = searchInput.value.toLowerCase();
+            const listId = listType === 'series' ? 'seriesList' : 'moviesList';
+            const listItems = document.querySelectorAll(`#${listId} li`);
+            
+            listItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        }
+
+        // Load the content of both files
+        loadFile('series.txt', 'seriesList');
+        loadFile('movies_sorted.txt', 'moviesList');
     </script>
+
 </body>
 </html>
