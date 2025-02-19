@@ -118,7 +118,7 @@
         <h1>Movie & Series List</h1>
 
         <!-- Single Search Box -->
-        <input type="text" id="searchInput" placeholder="Search for a movie or series..." oninput="filterList()">
+        <input type="text" id="searchInput" placeholder="Search for a movie or series..." oninput="debounceFilterList()">
 
         <!-- Combined List for Movies and Series -->
         <ul id="combinedList"></ul>
@@ -127,6 +127,9 @@
     </div>
 
     <script>
+        let combinedList = []; // This will store the combined list of movies and series
+        let timeout; // Variable for debounce
+
         async function loadFile(fileName) {
             try {
                 const response = await fetch(fileName);
@@ -141,11 +144,14 @@
             const series = await loadFile('series.txt');
             const movies = await loadFile('movies_sorted.txt');
             
-            const combinedList = [...series, ...movies]; // Merge series and movies into one list
+            combinedList = [...series, ...movies]; // Merge series and movies into one list
+            displayList(combinedList); // Initial display of the full list
+        }
+
+        function displayList(list) {
             const listElement = document.getElementById('combinedList');
             listElement.innerHTML = '';
-            
-            combinedList.forEach(item => {
+            list.forEach(item => {
                 const li = document.createElement('li');
                 li.textContent = item;
                 listElement.appendChild(li);
@@ -154,12 +160,13 @@
 
         function filterList() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const listItems = document.querySelectorAll('#combinedList li');
-            
-            listItems.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(searchInput) ? 'block' : 'none';
-            });
+            const filteredList = combinedList.filter(item => item.toLowerCase().includes(searchInput));
+            displayList(filteredList); // Display the filtered list
+        }
+
+        function debounceFilterList() {
+            clearTimeout(timeout); // Clear the previous timeout
+            timeout = setTimeout(filterList, 300); // Set a new timeout (300ms delay)
         }
 
         loadLists(); // Load the lists when the page loads
