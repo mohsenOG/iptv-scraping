@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Movie & Series List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        pre {
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Movie & Series List</h1>
+        <h2>Series</h2>
+        <pre id="series"></pre>
+        <h2>Movies</h2>
+        <pre id="movies"></pre>
+    </div>
+
+    <script>
+        async function loadFile(fileName, elementId) {
+            try {
+                const response = await fetch(fileName);
+                const text = await response.text();
+                document.getElementById(elementId).textContent = text;
+            } catch (error) {
+                document.getElementById(elementId).textContent = "Error loading file.";
+            }
+        }
+
+        loadFile('series.txt', 'series');
+        loadFile('movies_sorted.txt', 'movies');
+    </script>
+</body>
+</html>
